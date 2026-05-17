@@ -38,7 +38,7 @@ class HalamanUtama extends StatelessWidget {
                     mainAxisSpacing: 15,
                     crossAxisSpacing: 15,
                     children: [
-                      _menuCard(context, "Data Santri", Icons.group, Colors.blue, const HalamanData()),
+                      _menuCard(context, "Data Santri", Icons.group, Colors.blue, HalamanData()),
                       _menuCard(context, "Jadwal", Icons.event_note, Colors.orange, const HalamanInformasi()),
                     ],
                   ),
