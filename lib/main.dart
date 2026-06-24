@@ -1,63 +1,107 @@
 import 'package:flutter/material.dart';
-import 'halaman_dashboard.dart';
+import 'halaman_dashboard.dart'; // Menyambungkan ke halaman dashboard kamu
 
-void main() => runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: SplashScreen(),
-    ));
+void main() {
+  runApp(MyApp());
+}
 
-class SplashScreen extends StatelessWidget {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFF1B5E20),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.mosque, size: 100, color: Colors.white),
-            SizedBox(height: 20),
-            Text("Ahlan Wa Sahlan", style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-            Text("Sistem Informasi Pondok Pesantren", style: TextStyle(color: Colors.white70)),
-            SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.green[900]),
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
-              child: Text("MASUK KE SISTEM"),
-            )
-          ],
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Pusat Pesantren',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
       ),
+      home: HalamanLogin(),
     );
   }
 }
 
-class LoginScreen extends StatelessWidget {
+class HalamanLogin extends StatefulWidget {
+  @override
+  _HalamanLoginState createState() => _HalamanLoginState();
+}
+
+class _HalamanLoginState extends State<HalamanLogin> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  void _prosesLogin() {
+    // Kunci Akun Pengguna: admin & 123456
+    if (_usernameController.text == "admin" && _passwordController.text == "123456") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HalamanDashboard()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Username atau Password Salah!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(30),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("LOGIN SANTRI", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green[900])),
-            SizedBox(height: 30),
-            TextField(decoration: InputDecoration(labelText: "Username / NIS", border: OutlineInputBorder())),
-            SizedBox(height: 15),
-            TextField(obscureText: true, decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder())),
-            SizedBox(height: 25),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1B5E20)),
-                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HalamanDashboard())),
-                child: Text("LOGIN", style: TextStyle(color: Colors.white)),
+      backgroundColor: Colors.green[50],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.mosque, size: 80, color: Color(0xFF1B5E20)),
+                  SizedBox(height: 10),
+                  Text(
+                    "LOGIN SISTEM PESANTREN",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B5E20)),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      labelText: "Username",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock),
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1B5E20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: _prosesLogin,
+                      child: Text("MASUK", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );

@@ -1,64 +1,58 @@
-import 'package:sqflite/sqflite.dart'; // Pastikan sudah install sqflite
-import 'package:path/path.dart';       // Pastikan sudah install path
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class DbHelper {
   static final DbHelper instance = DbHelper._init();
   static Database? _database;
-
   DbHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('pesantren_pro.db');
+    _database = await _initDB('pesantren_full_v1.db'); // DB baru biar fresh
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
-    // Membuat tabel utama
+    // 1. Tabel Tabungan/Santri
     await db.execute('''
-      CREATE TABLE santri(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nama TEXT,
-        nis TEXT,
-        saldo INTEGER,
-        keterangan TEXT
-      )
+      CREATE TABLE tabungan(id INTEGER PRIMARY KEY AUTOINCREMENT, jumlah INTEGER, tanggal TEXT)
     ''');
-
-    // Memasukkan data awal (biar aplikasi nggak kosong)
-    await db.insert('santri', {
-      'nama': 'MOH SAHUR',
-      'nis': '20241220091',
-      'saldo': 1500000,
-      'keterangan': 'Saldo Awal'
-    });
+    // 2. Tabel Tahfidz
+    await db.execute('''
+      CREATE TABLE tahfidz(id INTEGER PRIMARY KEY AUTOINCREMENT, surah TEXT, ayat TEXT, status TEXT)
+    ''');
+    // 3. Tabel Kesehatan
+    await db.execute('''
+      CREATE TABLE kesehatan(id INTEGER PRIMARY KEY AUTOINCREMENT, keluhan TEXT, obat TEXT, tanggal TEXT)
+    ''');
+    // 4. Tabel SPP
+    await db.execute('''
+      CREATE TABLE spp(id INTEGER PRIMARY KEY AUTOINCREMENT, bulan TEXT, jumlah INTEGER, status TEXT)
+    ''');
+    // 5. Tabel Disiplin
+    await db.execute('''
+      CREATE TABLE disiplin(id INTEGER PRIMARY KEY AUTOINCREMENT, pelanggaran TEXT, poin INTEGER, tanggal TEXT)
+    ''');
+    // 6. Tabel Izin
+    await db.execute('''
+      CREATE TABLE izin(id INTEGER PRIMARY KEY AUTOINCREMENT, alasan TEXT, status TEXT, tanggal TEXT)
+    ''');
   }
 
-  // Fungsi untuk menyimpan data baru
-  Future<int> simpanTransaksi(String nama, int jumlah) async {
+  // --- FUNGSI SIMPAN & AMBIL DATA (ALL IN ONE) ---
+  Future<int> simpanData(String tabel, Map<String, dynamic> data) async {
     final db = await instance.database;
-    return await db.insert('santri', {
-      'nama': nama,
-      'nis': '20241220091',
-      'saldo': jumlah,
-      'keterangan': 'Top Up Tabungan'
-    });
+    return await db.insert(tabel, data);
   }
 
-  // Fungsi untuk mengambil data agar tampil di layar
-  Future<List<Map<String, dynamic>>> ambilSemuaData() async {
+  Future<List<Map<String, dynamic>>> ambilData(String tabel) async {
     final db = await instance.database;
-    return await db.query('santri', orderBy: 'id DESC');
+    return await db.query(tabel, orderBy: 'id DESC');
   }
 }

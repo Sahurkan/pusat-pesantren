@@ -7,27 +7,14 @@ class HalamanTabungan extends StatefulWidget {
 }
 
 class _HalamanTabunganState extends State<HalamanTabungan> {
-  final TextEditingController _controller = TextEditingController();
+  final _nominalController = TextEditingController();
   List<Map<String, dynamic>> _riwayat = [];
 
   @override
-  void initState() {
-    super.initState();
-    _ambilData();
-  }
-
-  void _ambilData() async {
-    final data = await DbHelper.instance.ambilSemuaData();
-    setState(() => _riwayat = data);
-  }
-
-  void _simpan() async {
-    if (_controller.text.isNotEmpty) {
-      await DbHelper.instance.simpanTransaksi("MOH SAHUR", int.parse(_controller.text));
-      _controller.clear();
-      _ambilData(); // Refresh list
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Saldo Berhasil Disimpan!")));
-    }
+  void initState() { super.initState(); _muatData(); }
+  void _muatData() async {
+    final d = await DbHelper.instance.ambilData('tabungan');
+    setState(() => _riwayat = d);
   }
 
   @override
@@ -37,22 +24,52 @@ class _HalamanTabunganState extends State<HalamanTabungan> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(20),
-            child: TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: "Masukkan Nominal Top Up (Rp)", border: OutlineInputBorder()),
+            padding: EdgeInsets.all(15),
+            child: Card(
+              elevation: 4,
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _nominalController, 
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: "Masukkan Nominal Top Up (Rp)"),
+                    ),
+                    SizedBox(height: 15),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1B5E20)),
+                        onPressed: () async {
+                          if (_nominalController.text.isNotEmpty) {
+                            await DbHelper.instance.simpanData('tabungan', {
+                              'jumlah': int.parse(_nominalController.text),
+                              'tanggal': 'Hari Ini'
+                            });
+                            _nominalController.clear();
+                            _muatData();
+                          }
+                        },
+                        child: Text("SIMPAN TABUNGAN", style: TextStyle(color: Colors.white)),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
-          ElevatedButton(onPressed: _simpan, child: Text("Simpan ke Database")),
-          Divider(),
+          Text("RIWAYAT MASUK TABUNGAN:", style: TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
             child: ListView.builder(
               itemCount: _riwayat.length,
-              itemBuilder: (context, index) => ListTile(
-                leading: Icon(Icons.account_balance_wallet, color: Colors.green),
-                title: Text("Rp ${_riwayat[index]['saldo']}"),
-                subtitle: Text("Tanggal: ${_riwayat[index]['id']}"), // ID sebagai tanda record
+              itemBuilder: (context, i) => Card(
+                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                child: ListTile(
+                  leading: Icon(Icons.account_balance_wallet, color: Colors.green),
+                  title: Text("Rp ${_riwayat[i]['jumlah']}"),
+                  subtitle: Text("Status Berhasil disimpan"),
+                ),
               ),
             ),
           )
