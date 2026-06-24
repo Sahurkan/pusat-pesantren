@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pusat_pesantren"
+    namespace = "com.mohsahur.pusat_pesantren"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
